@@ -2,13 +2,51 @@
 Multi-Agent Stress-Testing System for Ideas.
 """
 
+import sys
+import importlib
+from pathlib import Path
 import streamlit as st
-from src.config import (
-    get_gemini_api_key,
-    AVAILABLE_MODELS,
-    MODEL_LABEL_TO_ID,
-    DEFAULT_MODEL,
-)
+
+# Ensure repository root is on sys.path
+root_dir = Path(__file__).resolve().parent
+if str(root_dir) not in sys.path:
+    sys.path.insert(0, str(root_dir))
+
+# Force reload of src modules in case Streamlit Cloud cached previous in-memory versions
+for mod_name in list(sys.modules.keys()):
+    if mod_name.startswith("src.") or mod_name == "src":
+        try:
+            importlib.reload(sys.modules[mod_name])
+        except Exception:
+            pass
+
+# Robust import with fail-safe fallback
+try:
+    from src.config import (
+        get_gemini_api_key,
+        AVAILABLE_MODELS,
+        MODEL_LABEL_TO_ID,
+        DEFAULT_MODEL,
+    )
+except (ImportError, AttributeError):
+    try:
+        from src.config import get_gemini_api_key
+    except Exception:
+        def get_gemini_api_key(st_context=None):
+            import os
+            return os.getenv("GEMINI_API_KEY", "")
+
+    AVAILABLE_MODELS = [
+        {"id": "gemini-3.5-flash-lite", "label": "Gemini 3.5 Flash Lite — 15 RPM | 500 RPD (Recommended)", "rpm": 15, "rpd": 500},
+        {"id": "gemini-3.1-flash-lite", "label": "Gemini 3.1 Flash Lite — 15 RPM | 500 RPD", "rpm": 15, "rpd": 500},
+        {"id": "gemini-3-flash-preview", "label": "Gemini 3 Flash — 5 RPM | 20 RPD", "rpm": 5, "rpd": 20},
+        {"id": "gemini-3.8-flash", "label": "Gemini 3.8 Flash — 5 RPM | 20 RPD", "rpm": 5, "rpd": 20},
+        {"id": "gemini-3.6-flash", "label": "Gemini 3.6 Flash — 5 RPM | 20 RPD", "rpm": 5, "rpd": 20},
+        {"id": "gemini-robotics-er-2-preview", "label": "Gemini Robotics ER 2 — 5 RPM | 20 RPD", "rpm": 5, "rpd": 20},
+    ]
+    MODEL_LABEL_TO_ID = {m["label"]: m["id"] for m in AVAILABLE_MODELS}
+    DEFAULT_MODEL = AVAILABLE_MODELS[0]["id"]
+
 from src.orchestrator import CrucibleOrchestrator
 
 # Set page configuration
@@ -163,7 +201,7 @@ start_button = st.button("Run Test", type="primary", use_container_width=True)
 if start_button:
     api_key = get_gemini_api_key(st)
     if not api_key:
-        st.error("API key not detected. Please make sure GEMINI_API_KEY is configured in your .env file or environment.")
+        st.error("API key not detected. Please make sure GEMINI_API_KEY is configured in your Streamlit secrets or environment.")
     elif not idea_input.strip():
         st.warning("Please type or fill an idea to test.")
     else:

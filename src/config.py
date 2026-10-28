@@ -64,6 +64,7 @@ AVAILABLE_MODELS = [
     },
 ]
 
+SUPPORTED_MODELS = [m["id"] for m in AVAILABLE_MODELS]
 MODEL_LABEL_TO_ID = {m["label"]: m["id"] for m in AVAILABLE_MODELS}
 MODEL_ID_TO_LABEL = {m["id"]: m["label"] for m in AVAILABLE_MODELS}
 DEFAULT_MODEL = AVAILABLE_MODELS[0]["id"]

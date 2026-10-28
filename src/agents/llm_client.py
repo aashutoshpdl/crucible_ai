@@ -7,7 +7,15 @@ import time
 import requests
 from typing import List, Optional
 
-from src.config import AVAILABLE_MODELS
+try:
+    from src.config import AVAILABLE_MODELS
+except (ImportError, AttributeError):
+    AVAILABLE_MODELS = [
+        {"id": "gemini-3.5-flash-lite", "label": "Gemini 3.5 Flash Lite", "rpm": 15, "rpd": 500},
+        {"id": "gemini-3.1-flash-lite", "label": "Gemini 3.1 Flash Lite", "rpm": 15, "rpd": 500},
+        {"id": "gemini-3-flash-preview", "label": "Gemini 3 Flash", "rpm": 5, "rpd": 20},
+        {"id": "gemini-3.8-flash", "label": "Gemini 3.8 Flash", "rpm": 5, "rpd": 20},
+    ]
 
 logger = logging.getLogger(__name__)
 
