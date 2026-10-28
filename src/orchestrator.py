@@ -1,5 +1,6 @@
-"""Multi-Agent Orchestrator for Crucible AI."""
+"""Multi-Agent Orchestrator for Crucible AI with rate-limit hygiene."""
 
+import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, Any, Optional
 
@@ -16,7 +17,7 @@ from src.tools.search import search_market_data
 class CrucibleOrchestrator:
     """Coordinates the 4 adversarial agents and synthesizes via Chief Judge."""
 
-    def __init__(self, api_key: str, model_name: str = "gemini-2.5-flash"):
+    def __init__(self, api_key: str, model_name: str = "gemini-3-flash-preview"):
         self.client = GeminiClient(api_key=api_key, model=model_name)
 
     def run_stress_test(
@@ -28,7 +29,7 @@ class CrucibleOrchestrator:
         """
         Executes the full stress test pipeline:
         1. Web Search for competitive landscape.
-        2. Parallel execution of Investor, Customer, Engineer, and Researcher.
+        2. Staggered execution of Investor, Customer, Engineer, and Researcher.
         3. Human response incorporation (if provided).
         4. Chief Judge evaluation and scorecard.
         """
@@ -44,29 +45,37 @@ class CrucibleOrchestrator:
 
         # Step 1: Web Research Search Query
         if progress_callback:
-            progress_callback("🔍 Scanning the web for competitors and market trends...")
+            progress_callback("Scanning the web for competitors and market trends...")
         
         search_query = f"{idea[:100]} startup competitors market failure"
         search_results = search_market_data(search_query, max_results=3)
         results["search_data"] = search_results
 
-        # Step 2: Run the 4 Debaters in parallel using ThreadPoolExecutor
+        # Step 2: Run the 4 Debaters with 0.4s staggering to prevent free-tier 503/429 collisions
         if progress_callback:
-            progress_callback("⚔️ Debaters unleashed: Investor, Customer, Engineer & Researcher attacking...")
+            progress_callback("Debaters active: Investor, Customer, Engineer, and Researcher analyzing...")
 
-        def call_investor():
+        def call_investor(stagger_delay: float = 0.0):
+            if stagger_delay > 0:
+                time.sleep(stagger_delay)
             prompt = f"Stress-test this business idea:\n\n\"{idea}\""
             return self.client.generate(INVESTOR_PROMPT, prompt, temperature=0.7)
 
-        def call_customer():
+        def call_customer(stagger_delay: float = 0.4):
+            if stagger_delay > 0:
+                time.sleep(stagger_delay)
             prompt = f"Critique this product/idea as an impatient, skeptical customer:\n\n\"{idea}\""
             return self.client.generate(CUSTOMER_PROMPT, prompt, temperature=0.8)
 
-        def call_engineer():
+        def call_engineer(stagger_delay: float = 0.8):
+            if stagger_delay > 0:
+                time.sleep(stagger_delay)
             prompt = f"Point out all technical bottlenecks and architecture headaches with this idea:\n\n\"{idea}\""
             return self.client.generate(ENGINEER_PROMPT, prompt, temperature=0.6)
 
-        def call_researcher():
+        def call_researcher(stagger_delay: float = 1.2):
+            if stagger_delay > 0:
+                time.sleep(stagger_delay)
             prompt = (
                 f"Analyze competitors and real-world market precedents for this idea:\n\n"
                 f"IDEA:\n\"{idea}\"\n\n"
@@ -75,19 +84,21 @@ class CrucibleOrchestrator:
             return self.client.generate(RESEARCHER_PROMPT, prompt, temperature=0.5)
 
         with ThreadPoolExecutor(max_workers=4) as executor:
-            future_investor = executor.submit(call_investor)
-            future_customer = executor.submit(call_customer)
-            future_engineer = executor.submit(call_engineer)
-            future_researcher = executor.submit(call_researcher)
+            future_investor = executor.submit(call_investor, 0.0)
+            future_customer = executor.submit(call_customer, 0.4)
+            future_engineer = executor.submit(call_engineer, 0.8)
+            future_researcher = executor.submit(call_researcher, 1.2)
 
             results["investor_critique"] = future_investor.result()
             results["customer_critique"] = future_customer.result()
             results["engineer_critique"] = future_engineer.result()
             results["researcher_critique"] = future_researcher.result()
 
-        # Step 3: Chief Judge Synthesis
+        # Step 3: Chief Judge Synthesis (brief breather to respect 15 RPM window)
+        time.sleep(1.5)
+        
         if progress_callback:
-            progress_callback("⚖️ Chief Judge reviewing debate arguments and rendering verdict...")
+            progress_callback("Chief Judge reviewing debate arguments and rendering verdict...")
 
         human_section = ""
         if human_counter and human_counter.strip():
@@ -97,17 +108,16 @@ class CrucibleOrchestrator:
             f"ORIGINAL FOUNDER IDEA:\n\"{idea}\"\n"
             f"{human_section}\n\n"
             f"--- DEBATE TRANSCRIPT ---\n\n"
-            f"### 💼 SKEPTICAL INVESTOR CRITIQUE:\n{results['investor_critique']}\n\n"
-            f"### 😤 ANGRY CUSTOMER CRITIQUE:\n{results['customer_critique']}\n\n"
-            f"### 🛠️ PRAGMATIC ENGINEER CRITIQUE:\n{results['engineer_critique']}\n\n"
-            f"### 🌐 MARKET RESEARCHER CRITIQUE & EVIDENCE:\n{results['researcher_critique']}\n\n"
+            f"### SKEPTICAL INVESTOR CRITIQUE:\n{results['investor_critique']}\n\n"
+            f"### ANGRY CUSTOMER CRITIQUE:\n{results['customer_critique']}\n\n"
+            f"### PRAGMATIC ENGINEER CRITIQUE:\n{results['engineer_critique']}\n\n"
+            f"### MARKET RESEARCHER CRITIQUE & EVIDENCE:\n{results['researcher_critique']}\n\n"
             f"Synthesize the debate and deliver your structured Executive Crucible Scorecard."
         )
 
         results["judge_scorecard"] = self.client.generate(JUDGE_PROMPT, judge_input, temperature=0.4)
 
         if progress_callback:
-            progress_callback("✅ Crucible analysis complete!")
+            progress_callback("Crucible analysis complete.")
 
         return results
-

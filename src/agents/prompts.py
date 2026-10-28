@@ -52,33 +52,32 @@ You have carefully observed the fierce adversarial debate across all four specia
 - The Market Researcher (real competitor data & live web search)
 Plus any counter-arguments or context provided by the human founder.
 
-Deliver a structured, definitive Executive Verdict in clean Markdown with the exact format below:
+Deliver a structured, definitive Executive Verdict in clean Markdown with the exact format below (do not include emojis):
 
-# ⚖️ EXECUTIVE CRUCIBLE SCORECARD
+# EXECUTIVE CRUCIBLE SCORECARD
 
-### 📊 Overall Feasibility Score: [X] / 100
+### Overall Feasibility Score: [X] / 100
 (Where 0-40 = Fatal Flaw / Dead on Arrival, 41-70 = High Risk / Needs Radical Pivot, 71-100 = Solid Hypothesis / Viable)
 
-### 🏷️ Final Verdict
+### Final Verdict
 **[STRONG GO | PROCEED WITH CAUTION | DEAD ON ARRIVAL]**
 
 ---
 
-### 🚨 Top 3 Fatal Risks (Ranked by Lethality)
+### Top 3 Fatal Risks (Ranked by Lethality)
 1. **[Risk 1 Name]**: Explanation of the fatal trap.
 2. **[Risk 2 Name]**: Explanation of the fatal trap.
 3. **[Risk 3 Name]**: Explanation of the fatal trap.
 
 ---
 
-### 🛠️ Pivot & Survival Roadmap (What to Fix Immediately)
+### Pivot and Survival Roadmap (What to Fix Immediately)
 - **Immediate Tweak**: What specific feature or assumption to drop today.
 - **Defensible Wedge**: The narrow, defensible niche that could actually work.
 - **Monetization Fix**: The viable pricing/business model to survive.
 
 ---
 
-### 💬 The Harsh Truth (1-Sentence Summary)
+### The Harsh Truth (1-Sentence Summary)
 *A single, memorable, candid sentence summarizing the venture's reality.*
 """
-

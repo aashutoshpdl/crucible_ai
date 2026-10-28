@@ -1,5 +1,5 @@
 """Crucible AI - Streamlit Web Application.
-Multi-Agent Stress-Testing System for Startup Ideas (100% Free Tier).
+Multi-Agent Stress-Testing System for Ideas.
 """
 
 import streamlit as st
@@ -9,133 +9,161 @@ from src.orchestrator import CrucibleOrchestrator
 # Set page configuration
 st.set_page_config(
     page_title="Crucible AI | Multi-Agent Idea Stress-Tester",
-    page_icon="🔥",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# Custom CSS for polished styling
+# Custom CSS for clean layout
 st.markdown("""
 <style>
     .main-header {
-        font-size: 2.3rem;
-        font-weight: 800;
-        color: #FF4B4B;
-        margin-bottom: 0px;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #1E293B;
+        margin-bottom: 2px;
     }
     .sub-header {
-        font-size: 1.1rem;
-        color: #888888;
-        margin-bottom: 25px;
-    }
-    .agent-box {
-        border-radius: 10px;
-        padding: 16px;
-        margin-bottom: 15px;
-        border: 1px solid #e0e0e0;
-        background-color: #f9f9f9;
+        font-size: 1.05rem;
+        color: #64748B;
+        margin-bottom: 20px;
     }
     .stMetric {
-        background-color: #f0f2f6;
+        background-color: #F8FAFC;
         border-radius: 8px;
         padding: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------- Sidebar Configuration ----------------
+# ---------------- Sidebar ----------------
 with st.sidebar:
-    st.image("https://img.icons8.com/color/96/flame.png", width=64)
     st.title("Crucible AI")
     st.caption("Adversarial Multi-Agent Stress-Testing")
-
     st.markdown("---")
-    st.markdown("### 🔑 API Configuration")
-    
-    env_key = get_gemini_api_key(st)
-    user_api_key = st.text_input(
-        "Google Gemini API Key (100% Free):",
-        value=env_key,
-        type="password",
-        help="Get a free key at https://aistudio.google.com/ with zero credit card required.",
-    )
-    
-    if not user_api_key:
-        st.warning("👉 [Get a free key here](https://aistudio.google.com/) and paste it above.")
-    else:
-        st.success("API Key detected!")
 
-    selected_model = st.selectbox(
-        "Gemini Model (Free Tier):",
-        options=["gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.0-flash"],
-        index=0,
-    )
-
-    st.markdown("---")
-    st.markdown("### 🤖 The 4 Adversarial Agents")
+    st.markdown("### The 4 Adversarial Agents")
     st.markdown("""
-    - **💼 Skeptical Investor**: Attacks market size, monetization & TAM.
-    - **😤 Angry Customer**: Exposes UX friction, apathy & switching costs.
-    - **🛠️ Pragmatic Engineer**: Flags scaling bottlenecks & tech debt.
-    - **🌐 Market Researcher**: Uses real DuckDuckGo web search data.
-    - **⚖️ Chief Judge**: Weighs arguments and renders a final scorecard.
+    - **Skeptical Investor**: Questions market size, unit economics, monetization, and defensibility.
+    - **Angry Customer**: Exposes UX friction, user apathy, switching inertia, and unmet expectations.
+    - **Pragmatic Engineer**: Identifies architecture bottlenecks, API latency, infrastructure costs, and technical risks.
+    - **Market Researcher**: Analyzes competitors, past failures, and real market data using live search.
+    - **Chief Judge**: Synthesizes the debate into a scorecard with key risks, actionable fixes, and a final verdict.
     """)
 
 # ---------------- Main Page ----------------
-st.markdown('<p class="main-header">🔥 CRUCIBLE AI</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-header">Put your startup idea, feature, or project hypothesis through a brutal multi-agent stress-test.</p>', unsafe_allow_html=True)
+st.markdown('<p class="main-header">Crucible AI</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-header">Multi-agent adversarial stress-testing system for startup ideas and product hypotheses.</p>', unsafe_allow_html=True)
 
-# Preset Quick-Pick Ideas
-st.markdown("**💡 Or test with a sample idea:**")
-col_s1, col_s2, col_s3 = st.columns(3)
-sample_idea = ""
-if col_s1.button("🐶 Autonomous Drone Dog Walker"):
-    sample_idea = "An on-demand service where automated tethered drones walk dogs in suburban neighborhoods with camera tracking and automated treat dispensers."
-if col_s2.button("💼 Tinder for Technical Co-Founders"):
-    sample_idea = "A swipe-based matchmaking app for startup founders where profiles are verified with GitHub commit histories, equity split preferences, and personality tests."
-if col_s3.button("🎙️ AI Podcast to Daily Newsletter"):
-    sample_idea = "A SaaS tool that automatically listens to 2-hour niche tech podcasts, removes sponsor fluff, and emails subscribers a 3-minute actionable executive summary."
+# Prompt Templates
+PROMPT_TEMPLATES = {
+    "Choose a prompt template to fill...": "",
+    "Startup Pitch": (
+        "Problem:\n"
+        "[What specific painful problem does this solve?]\n\n"
+        "Target Audience:\n"
+        "[Who experiences this problem and pays for it?]\n\n"
+        "Proposed Solution:\n"
+        "[How does your product solve it?]\n\n"
+        "Monetization Model:\n"
+        "[How does the business make money?]\n\n"
+        "Key Advantage / Moat:\n"
+        "[Why can't competitors easily copy this?]"
+    ),
+    "Product Feature": (
+        "Feature Name:\n"
+        "[Name of the feature or capability]\n\n"
+        "User Problem It Solves:\n"
+        "[Why are users asking for this or struggling today?]\n\n"
+        "How It Works:\n"
+        "[Step-by-step user workflow]\n\n"
+        "Expected Impact:\n"
+        "[Key metrics: retention, revenue, or efficiency]"
+    ),
+    "B2B SaaS Tool": (
+        "Target Industry / Buyer:\n"
+        "[e.g., Mid-market CFOs, DevOps Leads, HR Managers]\n\n"
+        "Workflow Bottleneck:\n"
+        "[The manual or inefficient process today]\n\n"
+        "Software Solution:\n"
+        "[How your software automates or resolves it]\n\n"
+        "Pricing & Packaging:\n"
+        "[e.g., $99/seat/month, usage-based]\n\n"
+        "Incumbent Alternatives:\n"
+        "[Tools they currently use instead]"
+    ),
+    "Consumer Mobile App": (
+        "App Concept:\n"
+        "[Core consumer proposition in one sentence]\n\n"
+        "Core Habit / Hook:\n"
+        "[Why will users open this app every day?]\n\n"
+        "Target Demographic:\n"
+        "[Age, interests, lifestyle]\n\n"
+        "Acquisition & Distribution:\n"
+        "[How you get the first 10,000 users]\n\n"
+        "Revenue Model:\n"
+        "[Freemium, subscription, in-app purchases, ads]"
+    ),
+}
 
-# Input Idea Form
+# Template selection callback
+if "idea_text" not in st.session_state:
+    st.session_state["idea_text"] = ""
+
+def apply_template():
+    selected = st.session_state.get("template_dropdown", "")
+    if selected in PROMPT_TEMPLATES and PROMPT_TEMPLATES[selected]:
+        st.session_state["idea_text"] = PROMPT_TEMPLATES[selected]
+
+col_label, col_dropdown = st.columns([1.6, 1.4])
+with col_label:
+    st.markdown("**Pitch your idea, thesis, or product feature:**")
+with col_dropdown:
+    st.selectbox(
+        "Prompt template option:",
+        options=list(PROMPT_TEMPLATES.keys()),
+        key="template_dropdown",
+        on_change=apply_template,
+        label_visibility="collapsed",
+    )
+
 idea_input = st.text_area(
-    "Pitch your idea, thesis, or product feature:",
-    value=sample_idea,
-    height=120,
-    placeholder="e.g., A mobile app where freelance designers bid live on micro-projects with escrow smart contracts...",
+    label="Pitch your idea, thesis, or product feature:",
+    key="idea_text",
+    height=170,
+    placeholder="Type your idea here or select a prompt template above to fill...",
+    label_visibility="collapsed",
 )
 
 human_counter = st.text_input(
-    "Founder's defense / extra context (Optional Human-in-the-Loop):",
-    placeholder="e.g., We already have exclusive distribution through 5 design universities.",
-    help="Add key advantages or counter-points you want the Chief Judge to consider.",
+    "Founder defense / extra context (Optional):",
+    placeholder="Add any specific advantages, distribution deals, or context for the Chief Judge...",
 )
 
-start_button = st.button("🚀 Run Multi-Agent Stress Test", type="primary", use_container_width=True)
+start_button = st.button("Run Test", type="primary", use_container_width=True)
 
 # ---------------- Processing & Output ----------------
 if start_button:
-    if not user_api_key.strip():
-        st.error("Please enter a valid Google Gemini API key in the sidebar to run the stress test.")
+    api_key = get_gemini_api_key(st)
+    if not api_key:
+        st.error("API key not detected. Please make sure GEMINI_API_KEY is configured in your .env file or environment.")
     elif not idea_input.strip():
-        st.warning("Please type or select an idea to test.")
+        st.warning("Please type or fill an idea to test.")
     else:
         status_box = st.status("Initializing agent debate...", expanded=True)
         
         def update_progress(msg: str):
             status_box.write(msg)
 
-        orchestrator = CrucibleOrchestrator(api_key=user_api_key, model_name=selected_model)
+        orchestrator = CrucibleOrchestrator(api_key=api_key, model_name=DEFAULT_MODEL)
         
-        with st.spinner("Agents are fiercely analyzing and debating your idea..."):
+        with st.spinner("Agents are analyzing and debating your idea..."):
             results = orchestrator.run_stress_test(
                 idea=idea_input,
                 human_counter=human_counter,
                 progress_callback=update_progress,
             )
         
-        status_box.update(label="Stress test complete!", state="complete", expanded=False)
-
-        # Store in session state for downloading/viewing
+        status_box.update(label="Stress test complete.", state="complete", expanded=False)
         st.session_state["crucible_results"] = results
 
 # Display Results if available
@@ -143,14 +171,14 @@ if "crucible_results" in st.session_state:
     res = st.session_state["crucible_results"]
     
     st.markdown("---")
-    st.subheader("⚔️ The Adversarial Debate")
+    st.subheader("The Adversarial Debate")
     
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "💼 Skeptical Investor",
-        "😤 Angry Customer",
-        "🛠️ Pragmatic Engineer",
-        "🌐 Market Researcher",
-        "🔍 Web Evidence",
+        "Skeptical Investor",
+        "Angry Customer",
+        "Pragmatic Engineer",
+        "Market Researcher",
+        "Web Search Data",
     ])
     
     with tab1:
@@ -162,38 +190,37 @@ if "crucible_results" in st.session_state:
     with tab4:
         st.markdown(res["researcher_critique"])
     with tab5:
-        st.markdown("**Live DuckDuckGo Search Results fed to the Researcher:**")
+        st.markdown("**DuckDuckGo Search Results fed to Researcher:**")
         st.text(res["search_data"])
 
     st.markdown("---")
-    st.subheader("⚖️ The Chief Judge Verdict & Scorecard")
+    st.subheader("Chief Judge Scorecard")
     st.markdown(res["judge_scorecard"])
 
     # Downloadable Report
     report_content = f"""# CRUCIBLE AI: VENTURE STRESS-TEST REPORT
 
-## 💡 Submitted Idea
+## Submitted Idea
 {res['idea']}
 
-## 💼 Skeptical Investor Critique
+## Skeptical Investor Critique
 {res['investor_critique']}
 
-## 😤 Angry Customer Critique
+## Angry Customer Critique
 {res['customer_critique']}
 
-## 🛠️ Pragmatic Engineer Critique
+## Pragmatic Engineer Critique
 {res['engineer_critique']}
 
-## 🌐 Market Researcher Intelligence
+## Market Researcher Intelligence
 {res['researcher_critique']}
 
-## ⚖️ Executive Chief Judge Scorecard
+## Executive Chief Judge Scorecard
 {res['judge_scorecard']}
 """
     st.download_button(
-        label="📥 Download Full Stress-Test Report (Markdown)",
+        label="Download Stress-Test Report (Markdown)",
         data=report_content,
         file_name="crucible_ai_scorecard.md",
         mime="text/markdown",
     )
-
