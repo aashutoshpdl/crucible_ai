@@ -1,0 +1,17 @@
+"Idea Agent (other name of project which is suitable and simple)": a multi-agent stress-test for any idea
+
+You paste in a startup idea, project, or essay thesis. Four agents then attack it from different angles:
+
+Skeptical investor: questions the market and money.
+Angry customer: finds what users would hate.
+Engineer: flags what's hard or impossible to build.
+Researcher: uses web search to find competitors and real data.
+
+A Judge agent reads the debate and produces a scorecard with the top 3 risks, what to fix, and a go/no-go verdict.
+
+Why it stands out: It's a multi-agent system with real tool use, and the output is easy to understand in a 2-minute demo. Most people show a PDF chatbot, and this is more memorable. You can demo it live by letting someone type their own idea.
+
+Stack: Python, an LLM API (gemini, for example), web search as a tool, and a simple Streamlit or web UI.
+
+Bonus touches: Show the agents' debate live as a chat. Add a"human approves before the Judge decides" step. Include a short note on how you tested for failures.
+

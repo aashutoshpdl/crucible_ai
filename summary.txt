@@ -1,0 +1,328 @@
+# ==============================================================================
+# PROJECT BLUEPRINT: CRUCIBLE AI (ROAST MY IDEA)
+# A Multi-Agent Stress-Testing System Built From Scratch (100% Free Tier)
+# ==============================================================================
+
+--------------------------------------------------------------------------------
+1. PROJECT NAMING & BRANDING
+--------------------------------------------------------------------------------
+Here are the top project name suggestions tailored for demos, hackathons, and resumes:
+
+★ 1. Crucible AI (Recommended)
+     Meaning: A "crucible" is a vessel melted at severe heat to test metals and
+     purify gold. Fits the idea of stress-testing a raw concept into reality.
+     Tagline: "Put your startup idea through the multi-agent crucible."
+
+  2. RoastMyIdea / IdeaRoaster
+     Meaning: Viral, punchy, instantly understandable. Great for consumer adoption
+     and social demos.
+
+  3. Devil's Advocate AI
+     Meaning: Captures the adversarial multi-agent debate dynamic instantly.
+
+  4. RedTeam Startup / IdeaCrusher
+     Meaning: Borrowing cybersecurity red-teaming concepts to harden business ideas.
+
+Recommended Primary Name: CRUCIBLE AI (or ROASTMYIDEA)
+
+
+--------------------------------------------------------------------------------
+2. SYSTEM ARCHITECTURE & WORKFLOW
+--------------------------------------------------------------------------------
+                                 [ User Submits Idea ]
+                                           │
+                    ┌──────────────────────┴──────────────────────┐
+                    │                                             │
+         [ Phase 1: Parallel Adversarial Debate ]                  │
+         ┌──────────────────┬──────────────────┬──────────────────┼──────────────────┐
+         ▼                  ▼                  ▼                  ▼                  ▼
+    [ Skeptical        [ Angry            [ Pragmatic        [ Market           (Real Web)
+      Investor ]         Customer ]         Engineer ]         Researcher ] ────► DuckDuckGo
+    • TAM & SAM        • Usability flaws  • Scalability      • Competitors      (Free Search)
+    • Unit economics   • Switching costs  • Tech debt        • Market data
+    • Monetization     • User friction    • Feasibility      • Existing fails
+         │                  │                  │                  │
+         └──────────────────┴─────────┬────────┴──────────────────┘
+                                      │
+                                      ▼
+                        [ Optional Human-in-the-Loop ]
+                     (User adds context / counters critique)
+                                      │
+                                      ▼
+                          [ Phase 2: Chief Judge ]
+                     • Synthesizes debate & evidence
+                     • Generates Scorecard (0-100 Feasibility Score)
+                     • Top 3 Fatal Risks
+                     • Concrete Actionable Fixes
+                     • Final Verdict: [GO / CAUTION / NO-GO]
+
+
+--------------------------------------------------------------------------------
+3. 100% FREE TECH STACK BREAKDOWN (ZERO COST)
+--------------------------------------------------------------------------------
+Every single tool selected below has a permanent, generous free tier:
+
+1. LLM API: Google Gemini 2.0 Flash / 1.5 Flash
+   - Cost: $0.00 (Google AI Studio Free Tier)
+   - Limits: Up to 15 Requests Per Minute (RPM), 1,500 Requests Per Day (RPD).
+   - Why: Extremely fast, high intelligence, handles large context, completely free.
+
+2. Web Search Tool: DuckDuckGo Search (`duckduckgo-search` Python library)
+   - Cost: $0.00
+   - Limits: Unlimited non-commercial scraping, NO API KEY required.
+   - Fallback: Tavily API (Free tier: 1,000 queries/month) if structured JSON search is preferred.
+
+3. Agent Orchestration: Native Python + Asyncio
+   - Cost: $0.00
+   - Why: Avoid heavy framework lock-ins. Clean, transparent, lightweight, and easy
+     to debug live in front of interviewers or judges.
+
+4. Frontend & Live UI: Streamlit
+   - Cost: $0.00
+   - Features: Chat messages, expander cards, real-time streaming, metric badges, download report.
+
+5. Cloud Deployment: Streamlit Community Cloud
+   - Cost: $0.00 (Free forever for public GitHub repositories)
+   - URL: Gives you a live `https://<your-project>.streamlit.app` public link.
+   - Secrets: Secure built-in environment variable manager in the dashboard.
+
+
+--------------------------------------------------------------------------------
+4. STEP-BY-STEP IMPLEMENTATION ROADMAP (FROM SCRATCH)
+--------------------------------------------------------------------------------
+
+════════════════════════════════════════════════════════════════════════════════
+STEP 1: Get Your Free API Keys
+════════════════════════════════════════════════════════════════════════════════
+1. Go to Google AI Studio: https://aistudio.google.com/
+2. Sign in with any Google account.
+3. Click "Get API key" -> "Create API key in new project".
+4. Copy your key (starts with `AIzaSy...`). Keep it safe.
+
+════════════════════════════════════════════════════════════════════════════════
+STEP 2: Set Up Your Project Directory & Virtual Environment
+════════════════════════════════════════════════════════════════════════════════
+In your terminal, run:
+
+```bash
+cd /Users/macbookpro/Documents/project/agents
+mkdir -p crucible_ai
+cd crucible_ai
+
+# Create Python virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Create directory structure
+mkdir -p src/agents src/tools
+```
+
+════════════════════════════════════════════════════════════════════════════════
+STEP 3: Configure Dependencies (`requirements.txt`)
+════════════════════════════════════════════════════════════════════════════════
+Create `requirements.txt`:
+```text
+google-genai>=1.0.0
+duckduckgo-search>=6.0.0
+streamlit>=1.40.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+```
+
+Install them:
+```bash
+pip install -r requirements.txt
+```
+
+════════════════════════════════════════════════════════════════════════════════
+STEP 4: Project File Structure
+════════════════════════════════════════════════════════════════════════════════
+Your project layout will look like this:
+
+```
+crucible_ai/
+├── .env                  # Local secret keys (never commit to git!)
+├── .gitignore            # Ignores .env, venv/, __pycache__/
+├── requirements.txt      # Python dependencies
+├── README.md             # Project overview & demo documentation
+├── src/
+│   ├── __init__.py
+│   ├── config.py         # Loads API keys and Gemini model settings
+│   ├── tools/
+│   │   ├── __init__.py
+│   │   └── search.py     # Free DuckDuckGo search integration
+│   ├── agents/
+│   │   ├── __init__.py
+│   │   ├── prompts.py    # System prompts for all 5 personas
+│   │   ├── debaters.py   # Investor, Customer, Engineer, Researcher
+│   │   └── judge.py      # Chief Judge & Scorecard synthesizer
+│   └── orchestrator.py   # Coordinates parallel execution & debate stream
+└── app.py                # Streamlit Web UI with live debate & scorecard
+```
+
+════════════════════════════════════════════════════════════════════════════════
+STEP 5: Core Implementation Code
+════════════════════════════════════════════════════════════════════════════════
+
+1. `.env`:
+```env
+GEMINI_API_KEY="AIzaSyYourGeminiApiKeyHere"
+```
+
+2. `.gitignore`:
+```gitignore
+.env
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+```
+
+3. `src/config.py`:
+```python
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+MODEL_NAME = "gemini-2.5-flash"  # or gemini-2.0-flash / gemini-1.5-flash
+```
+
+4. `src/tools/search.py`:
+```python
+from duckduckgo_search import DDGS
+
+def search_web(query: str, max_results: int = 4) -> str:
+    """Free web search using DuckDuckGo."""
+    try:
+        results = DDGS().text(query, max_results=max_results)
+        if not results:
+            return "No web results found."
+        formatted = []
+        for r in results:
+            formatted.append(f"- Title: {r.get('title')}\n  Snippet: {r.get('body')}\n  Link: {r.get('href')}")
+        return "\n\n".join(formatted)
+    except Exception as e:
+        return f"Web search failed or timed out: {str(e)}"
+```
+
+5. `src/agents/prompts.py`:
+```python
+INVESTOR_PROMPT = """You are a hard-nosed, skeptical venture capitalist who has seen 1,000 pitch decks fail.
+Your job is to relentlessly grill this idea on:
+1. Total Addressable Market (TAM) reality (is it too niche?).
+2. Monetization & Willingness to Pay (who actually writes the check?).
+3. Defensibility / Moat (why won't Google/Meta or a simple open-source wrapper kill this?).
+4. Unit economics and customer acquisition cost (CAC vs LTV).
+
+Be direct, analytical, and sharp. Do not sugarcoat anything."""
+
+CUSTOMER_PROMPT = """You are an impatient, cynical, busy end-user who hates changing existing habits.
+Your job is to identify why users will hate or abandon this idea:
+1. Friction and onboarding hurdles (why is this annoying to set up?).
+2. "Why can't I just use Excel / WhatsApp / ChatGPT?" (the inertia problem).
+3. Privacy, security, or trust issues.
+4. Hidden frustrations and unmet expectations.
+
+Speak in first-person as a passionate, irritated customer."""
+
+ENGINEER_PROMPT = """You are a battle-tested Principal Software Architect who hates overcomplicated hype.
+Your job is to point out why this idea will be a technical nightmare:
+1. Scalability bottlenecks and state management issues.
+2. Latency, LLM hallucinations, and reliability risks.
+3. Cost of infrastructure vs user pricing.
+4. Dependencies that can break, edge cases, and API rate limits.
+
+Be pragmatic, technical, and concrete."""
+
+RESEARCHER_PROMPT = """You are an elite competitive intelligence researcher.
+You are given the user's idea and LIVE WEB SEARCH RESULTS of real competitors and past failures.
+Your job is to:
+1. Identify existing companies/products already doing this.
+2. Cite real examples of similar startups that raised money and failed (post-mortems).
+3. Highlight current market trends and headwinds.
+
+Use the provided web research facts rigorously."""
+
+JUDGE_PROMPT = """You are the Chief Investment & Strategy Judge.
+You have read the original idea and the fierce debate between:
+- Skeptical Investor
+- Angry Customer
+- Pragmatic Engineer
+- Market Researcher (with real search data)
+
+Produce a structured, definitive executive scorecard in clean Markdown:
+1. Overall Feasibility Score (0 to 100)
+2. Final Verdict: [STRONG GO | PROCEED WITH CAUTION | DEAD ON ARRIVAL]
+3. Top 3 Fatal Risks (Ranked in order of severity)
+4. Pivot & Survival Roadmap (3 concrete, actionable fixes that could save this idea)
+5. 1-Sentence Harsh Truth Summary
+
+Keep it razor-sharp and objective."""
+```
+
+6. `src/orchestrator.py`:
+Orchestrates:
+- Query generation and DuckDuckGo search execution.
+- Parallel LLM calls for Investor, Customer, Engineer, and Researcher.
+- Collection of critiques.
+- Optional human feedback injection.
+- Chief Judge synthesis and structured scorecard output.
+
+7. `app.py`:
+Streamlit user interface featuring:
+- Hero banner: "Crucible AI: Roast My Idea"
+- Input text area for idea pitch / hypothesis
+- Button to trigger the stress test
+- Live multi-column cards showing the 4 agents attacking the idea
+- Human-in-the-loop input: "Want to counter an agent before the Judge rules?"
+- Final Verdict Dashboard with badge colors (Red/Yellow/Green), score meter, fatal risks, and actionable pivot roadmap
+- "Export PDF / Markdown Report" button
+
+════════════════════════════════════════════════════════════════════════════════
+STEP 6: Local Run & Verification
+════════════════════════════════════════════════════════════════════════════════
+Run locally:
+```bash
+streamlit run app.py
+```
+Open `http://localhost:8501` in your browser. Test it with:
+- "An Uber for dog walking with AI drones"
+- "A decentralized social network for productivity nerds"
+- Your actual startup hypothesis!
+
+════════════════════════════════════════════════════════════════════════════════
+STEP 7: 100% Free Cloud Deployment (Streamlit Community Cloud)
+════════════════════════════════════════════════════════════════════════════════
+1. Initialize Git and Push to GitHub:
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit: Crucible AI multi-agent stress tester"
+   git branch -M main
+   # Create a public or private repo on https://github.com/new
+   git remote add origin https://github.com/<your-username>/crucible-ai.git
+   git push -u origin main
+   ```
+
+2. Deploy on Streamlit Cloud:
+   - Go to: https://share.streamlit.io/
+   - Click "New app" -> Select your GitHub repository (`crucible-ai`), branch (`main`), and main file (`app.py`).
+   - Click "Advanced settings" -> Under "Secrets", paste your environment variable:
+     ```toml
+     GEMINI_API_KEY = "AIzaSy..."
+     ```
+   - Click "Deploy!".
+   - Within 2 minutes, your agent is LIVE on the internet at `https://crucible-ai.streamlit.app` at $0.00 cost forever!
+
+--------------------------------------------------------------------------------
+5. FAILURE TESTING & INTERVIEW TALKING POINTS
+--------------------------------------------------------------------------------
+When demoing or explaining this project in an interview:
+1. Failure Test 1: Nonsense / Gibberish inputs (Guardrails detect if the input is an idea or spam).
+2. Failure Test 2: Web search rate limits (Fallback to internal parametric knowledge if search is blocked).
+3. Failure Test 3: Agent Collusion / Echo Chamber (Prompts are explicitly adversarial with opposing objective functions to prevent agents from agreeing with each other).
+4. Failure Test 4: Latency optimization (Parallel asynchronous execution with `asyncio.gather` cuts response time from 30 seconds down to ~6 seconds).
+
+==============================================================================
