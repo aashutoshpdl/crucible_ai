@@ -3,7 +3,12 @@ Multi-Agent Stress-Testing System for Ideas.
 """
 
 import streamlit as st
-from src.config import get_gemini_api_key, DEFAULT_MODEL
+from src.config import (
+    get_gemini_api_key,
+    AVAILABLE_MODELS,
+    MODEL_LABEL_TO_ID,
+    DEFAULT_MODEL,
+)
 from src.orchestrator import CrucibleOrchestrator
 
 # Set page configuration
@@ -114,7 +119,7 @@ def apply_template():
     if selected in PROMPT_TEMPLATES and PROMPT_TEMPLATES[selected]:
         st.session_state["idea_text"] = PROMPT_TEMPLATES[selected]
 
-col_label, col_dropdown = st.columns([1.6, 1.4])
+col_label, col_dropdown = st.columns([1.5, 1.5])
 with col_label:
     st.markdown("**Pitch your idea, thesis, or product feature:**")
 with col_dropdown:
@@ -134,10 +139,23 @@ idea_input = st.text_area(
     label_visibility="collapsed",
 )
 
-human_counter = st.text_input(
-    "Founder defense / extra context (Optional):",
-    placeholder="Add any specific advantages, distribution deals, or context for the Chief Judge...",
-)
+# Model selection and founder defense controls right around the typing place
+col_model, col_context = st.columns([1.5, 1.5])
+with col_model:
+    model_labels = [m["label"] for m in AVAILABLE_MODELS]
+    selected_model_label = st.selectbox(
+        "Model (highest limits first):",
+        options=model_labels,
+        index=0,
+        help="Choose a Gemini model. Models with higher RPM and daily quotas are listed first.",
+    )
+    selected_model_id = MODEL_LABEL_TO_ID.get(selected_model_label, DEFAULT_MODEL)
+
+with col_context:
+    human_counter = st.text_input(
+        "Founder defense / extra context (Optional):",
+        placeholder="Add specific advantages or context for the Chief Judge...",
+    )
 
 start_button = st.button("Run Test", type="primary", use_container_width=True)
 
@@ -149,12 +167,12 @@ if start_button:
     elif not idea_input.strip():
         st.warning("Please type or fill an idea to test.")
     else:
-        status_box = st.status("Initializing agent debate...", expanded=True)
+        status_box = st.status(f"Initializing agent debate using {selected_model_id}...", expanded=True)
         
         def update_progress(msg: str):
             status_box.write(msg)
 
-        orchestrator = CrucibleOrchestrator(api_key=api_key, model_name=DEFAULT_MODEL)
+        orchestrator = CrucibleOrchestrator(api_key=api_key, model_name=selected_model_id)
         
         with st.spinner("Agents are analyzing and debating your idea..."):
             results = orchestrator.run_stress_test(

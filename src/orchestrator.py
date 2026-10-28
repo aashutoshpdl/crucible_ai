@@ -12,12 +12,13 @@ from src.agents.prompts import (
     RESEARCHER_PROMPT,
     JUDGE_PROMPT,
 )
+from src.config import DEFAULT_MODEL
 from src.tools.search import search_market_data
 
 class CrucibleOrchestrator:
     """Coordinates the 4 adversarial agents and synthesizes via Chief Judge."""
 
-    def __init__(self, api_key: str, model_name: str = "gemini-3-flash-preview"):
+    def __init__(self, api_key: str, model_name: str = DEFAULT_MODEL):
         self.client = GeminiClient(api_key=api_key, model=model_name)
 
     def run_stress_test(

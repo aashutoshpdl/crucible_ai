@@ -1,4 +1,4 @@
-"""Resilient Gemini LLM Client using High-Limit Models (gemini-3.5-flash-lite: 500 RPD)."""
+"""Resilient Gemini LLM Client supporting user-selected models with failover."""
 
 import json
 import logging
@@ -7,22 +7,23 @@ import time
 import requests
 from typing import List, Optional
 
-from src.config import SUPPORTED_MODELS
+from src.config import AVAILABLE_MODELS
 
 logger = logging.getLogger(__name__)
 
 class GeminiClient:
-    """Client for generating completions with high-limit models and automatic failover."""
+    """Client for generating completions using user-selected model with failover."""
 
     def __init__(self, api_key: str, model: str = "gemini-3.5-flash-lite"):
         self.api_key = api_key.strip(' "\'')
         self.model = model or "gemini-3.5-flash-lite"
         
-        # Priority order of models: start with high-limit models (500 RPD / 15 RPM)
+        # Priority order starts with the user's selected model, then remaining models
         self.models_to_try: List[str] = [self.model]
-        for m in SUPPORTED_MODELS:
-            if m not in self.models_to_try:
-                self.models_to_try.append(m)
+        for m in AVAILABLE_MODELS:
+            m_id = m["id"]
+            if m_id not in self.models_to_try:
+                self.models_to_try.append(m_id)
 
     def generate(self, system_prompt: str, user_prompt: str, temperature: float = 0.7) -> str:
         """Generate response with exponential backoff and jitter."""
@@ -34,7 +35,7 @@ class GeminiClient:
 
         last_error = ""
 
-        # Try models in priority order
+        # Try user's selected model first, then fallbacks
         for model_name in self.models_to_try:
             for attempt in range(3):
                 res, err, status_code = self._call_rest_api(
@@ -51,9 +52,9 @@ class GeminiClient:
                 if status_code == 404:
                     break
 
-                # Back off on 503/429
+                # Back off on 503 or 429
                 if status_code in (503, 429) and attempt < 2:
-                    delay = 1.5 * (1.7 ** attempt) + random.uniform(0.3, 0.7)
+                    delay = 1.2 * (1.6 ** attempt) + random.uniform(0.2, 0.6)
                     time.sleep(delay)
                     continue
 
@@ -66,7 +67,7 @@ class GeminiClient:
         user_prompt: str,
         temperature: float
     ) -> (Optional[str], str, int):
-        """Execute high-speed HTTP request to Gemini REST API."""
+        """Execute HTTP request to Gemini REST API."""
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={self.api_key}"
         headers = {"Content-Type": "application/json"}
         payload = {
